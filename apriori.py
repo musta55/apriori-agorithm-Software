@@ -1,12 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Date: Created on 2017-10-14 09:44am Thursday  
-Author: zhaopace@foxmail.com
-Description: 
-    An Effectively Python Implementation of Apriori Algorithm for Finding Frequent 
-    Sets and Association Rules   
-
-"""
 
 from collections import defaultdict
 import csv

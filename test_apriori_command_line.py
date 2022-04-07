@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Apr  9 10:05:45 2018
-
-@author: zbj
-"""
 
 from optparse import OptionParser    # parse command-line parameters
 from apriori import Apriori
