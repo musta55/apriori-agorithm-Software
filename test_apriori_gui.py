@@ -1,9 +1,9 @@
 from email.message import Message
 from fileinput import filename
-from os import system
+from os import stat, system
 import re
 import tkinter as tk
-from tkinter import CENTER, RAISED, StringVar, filedialog
+from tkinter import CENTER, RAISED, StringVar, filedialog, END
 from turtle import st
 
 from numpy import pad
@@ -14,19 +14,25 @@ def browseFiles():
     global fileName
     fileName = filedialog.askopenfilename(  initialdir = "/", 
                                             title = "Select a File", 
-                                            filetypes = (("Text files", "*.txt*"),("all files", "*.*")))
+                                            filetypes = (("all files", "*.*"),("Text files", "*.txt*")))
     explore_var.set(fileName)
 
 def submit():
-    global minSup, minCon, g_RHS, dataset
+    global minSup, minCon, g_RHS, dataset,fileName
     if support_var.get()!='' : minSup = float(support_var.get())
     if confidence_var.get()!='' : minCon = float(confidence_var.get())
     if rhs_var.get()!='' : g_RHS = frozenset([rhs_var.get()])
+    input = dataset_box.get("1.0", END)
+    if len(input)>10:
+        fileName = 'transaction.csv'
+        newFile = open('transaction.csv','w+')
+        print(input[:len(input)-1], file=newFile, end="")
+        newFile.close()
     dataset = fileName
     root.destroy()
 
 root=tk.Tk()
-root.geometry("1000x1000")
+root.geometry("1200x800")
 root.title("Input")
 
 minSup = 0.2
@@ -39,6 +45,8 @@ support_var=tk.StringVar()
 confidence_var=tk.StringVar()
 rhs_var=tk.StringVar()
 explore_var=tk.StringVar()
+
+
 
 explore_label = tk.Label(root, text = 'Dataset', font=('bold'))
 explore_entry = tk.Entry(root,textvariable = explore_var, font=('normal'))
@@ -55,49 +63,52 @@ rhs_entry=tk.Entry(root, textvariable = rhs_var, font = ('normal'))
 
 sub_btn=tk.Button(root,text = 'Submit', font=('normal'), command = submit, bg="green")
   
-# explore_label.grid(row=0,column=0, pady=5, padx=10)
-# explore_label.place(x=100, y=300)
-# explore_entry.grid(row=0,column=1, pady=5, padx=10)
-# button_explore.grid(row=0, column=2, pady=5, padx=10)
-explore_label.place(x=350, y=300)
-explore_entry.place(x=500, y=300)
-button_explore.place(x=700, y=300)
+px1, py1 = 150, 300
 
-# support_label.grid(row=1,column=0, pady=5, padx=10)
-# support_entry.grid(row=1,column=1, pady=5, padx=10)
-support_label.place(x=350, y=340)
-support_entry.place(x=500, y=340)
+msg = 'The APRIORI Algorithm'
+title_label = tk.Label(root, text=msg, font=("Arial",30, "bold"))
+title_label.place(x=400, y=20)
 
-# confidence_label.grid(row=2,column=0, pady=5, padx=10)
-# confidence_entry.grid(row=2,column=1, pady=5, padx=10)
-confidence_label.place(x=350, y=380)
-confidence_entry.place(x=500, y=380)
+dataset_label = tk.Label(root, text='Type your dataset:', font=('bold'))
+dataset_box =  tk.Text(root, font=('normal',10), height=28,width=52, borderwidth=2)
+dataset_label.place(x=px1, y=py1-100)
+dataset_box.place(x=px1, y= py1-70)
+explore_label.place(x=px1+500, y=py1)
+explore_entry.place(x=px1+650, y=py1)
+button_explore.place(x=px1+850, y=py1)
 
-# rhs_label.grid(row=3, column=0, pady=5, padx=10)
-# rhs_entry.grid(row=3, column=1, pady=5, padx=10)
-rhs_label.place(x=350, y=420)
-rhs_entry.place(x=500, y=420)
+
+support_label.place(x=px1+500, y=py1+40)
+support_entry.place(x=px1+650, y=py1+40)
+
+
+confidence_label.place(x=px1+500, y=py1+80)
+confidence_entry.place(x=px1+650, y=py1+80)
+
+rhs_label.place(x=px1+500, y=py1+120)
+rhs_entry.place(x=px1+650, y=py1+120)
 
 # sub_btn.grid(row=4,column=1, pady=5, padx=10)
-sub_btn.place(x=500, y=500, anchor=CENTER)
+sub_btn.place(x=px1+650, y=py1+200, anchor=CENTER)
 
-# root.columnconfigure(0, weight=1)
-# root.rowconfigure(0, weight=1)
+
 root.mainloop()
 
 
 res = tk.Tk()
 res.title("Results")
-res.geometry("1000x1000")
+res.geometry("1200x800")
 
 msg = 'The APRIORI Algorithm'
-title_label = tk.Label(res, text=msg, font=("Arial",20, "bold"))
-title_label.place(x=350, y=20)
+title_label = tk.Label(res, text=msg, font=("Arial",30, "bold"))
+title_label.place(x=400, y=20)
 
+print(dataset)
 msg = ''
 
 msg += """Parameters: \n - filePath: {} \n - mininum support: {} \n - mininum confidence: {} \n - rhs: {}\n""".format(dataset,minSup,minCon, g_RHS) + '\n'
-par_label = tk.Label(res, text=msg)
+par_box = tk.Text(res, height=6, width=65)
+par_box.insert('end', msg)
 
 msg=''
 objApriori = Apriori(minSup, minCon)
@@ -115,20 +126,22 @@ for key, value in freqSet.items():
 
 rules = objApriori.getSpecRules(g_RHS)
 msg += '-'*20 + '\n'
-freq_lebel = tk.Label(res, text=msg)
+freq_box = tk.Text(res, height=40, width=65)
+freq_box.insert('end', msg)
 msg = ''
 msg += 'rules refer to {}'.format(list(g_RHS)) + '\n'
 for key, value in rules.items():
     msg += '{} -> {}: {}'.format(list(key), list(g_RHS), value) + '\n'
 
-rule_label = tk.Label(res, text=msg)
+rule_box = tk.Text(res, height=32, width=65)
+rule_box.insert('end', msg)
 
+py1=100
+par_box.place(x=50, y=py1)
+freq_box.place(x=620, y=py1)
+rule_box.place(x=50, y=py1+130)
+par_box.config(state='disabled')
+rule_box.config(state='disabled')
+freq_box.config(state='disabled')
 
-# str_var = tk.StringVar()
-# res_label = tk.Message(res, textvariable=str_var, relief=RAISED)
-# str_var.set(msg)
-# res_label.pack()
-par_label.place(x=100, y=300)
-freq_lebel.place(x=400, y=200)
-rule_label.place(x=600, y=300)
 res.mainloop()

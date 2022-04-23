@@ -32,9 +32,9 @@ class Apriori(object):
         while currFreqTermSet != set():
             freqSet[k] = currFreqTermSet  # save the result
             k += 1
-            currCandiItemSet = self.getJoinedItemSet(currFreqTermSet, k) # get new candiate k-terms set
+            currCandiItemSet = self.getJoinedItemSet(currFreqTermSet, k) # get new candiate k-terms set joining step
             currFreqTermSet  = self.getItemsWithMinSupp(transListSet, currCandiItemSet, 
-                                                   itemCountDict, self.minSupp) # frequent k-terms set
+                                                   itemCountDict, self.minSupp) # frequent k-terms set pruning step
             
             
         #
